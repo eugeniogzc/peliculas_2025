@@ -8,44 +8,6 @@ let mis_peliculas_iniciales = [
 
 let mis_peliculas = [];
 
-const postAPI = async (peliculas) => {
-    try {
-        const res = await fetch("https://myjson.dit.upm.es/api/bins", {
-          method: 'POST', 
-          headers:{
-              "Content-Type": "application/json",
-          },
-          body: JSON.stringify(peliculas)
-        });
-        const {uri} = await res.json();
-        return uri;               
-    } catch (err) {
-        alert("No se ha podido crear el endpoint.")
-    }
-}
-const getAPI = async () => {
-    try {
-        const res = await fetch(localStorage.URL);
-        return await res.json();
-    } catch (err) {
-        alert("No se ha podido leer la información de la API.");
-    }
-}
-const updateAPI = async (peliculas) => {
-    try {
-        await fetch(localStorage.URL, {
-          method: 'PUT',
-          headers:{
-              "Content-Type": "application/json",
-          },
-          body: JSON.stringify(peliculas)
-        });
-    } catch (err) {
-        alert("No se ha podido actualizar la información en la API.")
-    }
-}
-
-
 // VISTAS
 
 const indexView = (peliculas) => {
@@ -138,17 +100,17 @@ const newView = () => {
 
 // CONTROLADORES 
 
-const initContr = async () => {
-    if (!localStorage.URL || localStorage.URL === "undefined") {
-        localStorage.URL = await postAPI(mis_peliculas_iniciales);
+const initContr = () => {
+    if (!localStorage.getItem('mis_peliculas')) {
+        localStorage.setItem('mis_peliculas', JSON.stringify(mis_peliculas_iniciales));
     }
     indexContr();
-}
+};
 
-const indexContr = async () => {
-    mis_peliculas = await getAPI() || [];
-    document.getElementById('main').innerHTML = await indexView(mis_peliculas);
-}
+const indexContr = () => {
+    mis_peliculas = JSON.parse(localStorage.getItem('mis_peliculas')) || [];
+    document.getElementById('main').innerHTML = indexView(mis_peliculas);
+};
 
 const showContr = (i) => {
     document.getElementById('main').innerHTML = showView(mis_peliculas[i]);
@@ -158,43 +120,43 @@ const newContr = () => {
     document.getElementById('main').innerHTML = newView();
 }
 
-const createContr = async () => {
+const createContr = () => {
     const nueva_pelicula = {
         titulo: document.getElementById('titulo').value,
         director: document.getElementById('director').value,
         miniatura: document.getElementById('miniatura').value
     };
     mis_peliculas.push(nueva_pelicula);
-    await updateAPI(mis_peliculas);
+    localStorage.setItem('mis_peliculas', JSON.stringify(mis_peliculas));
     indexContr();
-}
+};
 
 const editContr = (i) => {
     document.getElementById('main').innerHTML = editView(i,  mis_peliculas[i]);
 }
 
-const updateContr = async (i) => {
+const updateContr = (i) => {
     mis_peliculas[i].titulo   = document.getElementById('titulo').value;
     mis_peliculas[i].director = document.getElementById('director').value;
     mis_peliculas[i].miniatura = document.getElementById('miniatura').value;
-    await updateAPI(mis_peliculas);
+    localStorage.setItem('mis_peliculas', JSON.stringify(mis_peliculas));
     indexContr();
-}
+};
 
-const deleteContr = async (i) => {
+const deleteContr = (i) => {
     if (confirm(`¿Seguro que quieres borrar "${mis_peliculas[i].titulo}"?`)) {
         mis_peliculas.splice(i, 1);
-        await updateAPI(mis_peliculas);
+        localStorage.setItem('mis_peliculas', JSON.stringify(mis_peliculas));
         indexContr();
     }
-}
+};
 
-const resetContr = async () => {
+const resetContr = () => {
     if (confirm("¿Seguro que quieres reiniciar las películas?")) {
-        await updateAPI(mis_peliculas_iniciales);
+        localStorage.setItem('mis_peliculas', JSON.stringify(mis_peliculas_iniciales));
         indexContr();
     }
-}
+};
 
 // ROUTER de eventos
 const matchEvent = (ev, sel) => ev.target.matches(sel)
