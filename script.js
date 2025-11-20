@@ -7,13 +7,51 @@ let mis_peliculas_iniciales = [
 
 let mis_peliculas = [];
 let mis_keywords = [];
-
+let movie_keywords = {};
 
 // VISTAS
-const indexView = (peliculas) => {
-    let i=0;
+const indexView = (peliculas, recommended_movies) => {
+    let i = 0;
     let view = "";
 
+    view += `<div class="actions">
+                <button class="new">Añadir</button>
+                <button class="reset">Reset</button>
+                <button class="my-keywords">Mis Keywords</button>
+                <button class="download">Descargar</button>
+                <button class="search-btn">Buscar</button>
+            </div>`;
+
+    // Sección de Recomendaciones
+    view += `<h2>Basado en tus Keywords</h2>`;
+    if (recommended_movies.length > 0) {
+        view += '<div class="movie-grid">';
+        for (const movie of recommended_movies) {
+            const movie_index = mis_peliculas.findIndex(p => p.id === movie.id);
+            view += `
+            <div class="movie">
+               <div class="movie-img">
+                    <img class="show" data-my-id="${movie_index}" src="${movie.miniatura}" onerror="this.src='files/placeholder.png'"/>
+               </div>
+               <div class="title">
+                   ${movie.titulo || "<em>Sin título</em>"}
+                   <small>(${movie.match_count} coincidencias)</small>
+               </div>
+               <div class="actions">
+                   <button class="edit" data-my-id="${movie_index}">editar</button>
+                   <button class="delete" data-my-id="${movie_index}">borrar</button>
+                   <button class="keywords" data-my-id="${movie.id}">keywords</button>
+                </div>
+            </div>\n`;
+        }
+        view += '</div>';
+    } else {
+        view += `<p>Añade keywords a tu lista y visualiza las keywords de las películas para recibir recomendaciones.</p>`;
+    }
+
+    // Sección de Todas las Películas
+    view += `<h2>Todas las Películas</h2>`;
+    view += '<div class="movie-grid">';
     while(i < peliculas.length) {
       view += `
         <div class="movie">
@@ -31,14 +69,7 @@ const indexView = (peliculas) => {
         </div>\n`;
       i = i + 1;
     };
-
-    view += `<div class="actions">
-                <button class="new">Añadir</button>
-                <button class="reset">Reset</button>
-                <button class="my-keywords">Mis Keywords</button>
-                <button class="download">Descargar</button>
-                <button class="search-btn">Buscar</button>
-            </div>`;
+    view += '</div>';
 
     return view;
 }
@@ -117,10 +148,10 @@ const keywordsView = (movieId, keywords) => {
     return view;
 }
 
-const myKeywordsView = (keywords) => {
+const myKeywordsView = () => {
     let view = `<h2>Mis Keywords</h2>`;
     view += `<div class="keywords-list">`;
-    for (const keyword of keywords) {
+    for (const keyword of mis_keywords) {
         view += `<div class="keyword">
                     <span>${keyword}</span>
                     <button class="remove-keyword" data-keyword="${keyword}">Eliminar</button>
@@ -183,13 +214,28 @@ const initContr = () => {
     if (!localStorage.getItem('my_keywords')) {
         localStorage.setItem('my_keywords', JSON.stringify([]));
     }
+    if (!localStorage.getItem('movie_keywords')) {
+        localStorage.setItem('movie_keywords', JSON.stringify({}));
+    }
     indexContr();
 };
 
 const indexContr = () => {
     mis_peliculas = JSON.parse(localStorage.getItem('mis_peliculas')) || [];
     mis_keywords = JSON.parse(localStorage.getItem('my_keywords')) || [];
-    document.getElementById('main').innerHTML = indexView(mis_peliculas);
+    movie_keywords = JSON.parse(localStorage.getItem('movie_keywords')) || {};
+
+    const recommended_movies = mis_peliculas.map(pelicula => {
+        const keywords = movie_keywords[pelicula.id] || [];
+        const match_count = keywords.reduce((count, keyword) => {
+            return count + (mis_keywords.includes(keyword.name) ? 1 : 0);
+        }, 0);
+        return {...pelicula, match_count};
+    })
+    .filter(pelicula => pelicula.match_count > 0)
+    .sort((a, b) => b.match_count - a.match_count);
+
+    document.getElementById('main').innerHTML = indexView(mis_peliculas, recommended_movies);
 };
 
 const showContr = (i) => {
@@ -234,26 +280,35 @@ const deleteContr = (i) => {
 const resetContr = () => {
     if (confirm("¿Seguro que quieres reiniciar las películas?")) {
         localStorage.setItem('mis_peliculas', JSON.stringify(mis_peliculas_iniciales));
+        localStorage.setItem('movie_keywords', JSON.stringify({}));
         indexContr();
     }
 };
 
 const keywordsContr = (movieId) => {
-    const options = {
-        method: 'GET',
-        headers: {
-            accept: 'application/json',
-            Authorization: `Bearer ${API_KEY}`
-        }
-    };
+    movie_keywords = JSON.parse(localStorage.getItem('movie_keywords')) || {};
 
-    fetch(`https://api.themoviedb.org/3/movie/${movieId}/keywords`, options)
-        .then(response => response.json())
-        .then(response => {
-            const keywords = processKeywords(response.keywords);
-            document.getElementById('main').innerHTML = keywordsView(movieId, keywords);
-        })
-        .catch(err => console.error(err));
+    if (movie_keywords[movieId]) {
+        document.getElementById('main').innerHTML = keywordsView(movieId, movie_keywords[movieId]);
+    } else {
+        const options = {
+            method: 'GET',
+            headers: {
+                accept: 'application/json',
+                Authorization: `Bearer ${API_KEY}`
+            }
+        };
+
+        fetch(`https://api.themoviedb.org/3/movie/${movieId}/keywords`, options)
+            .then(response => response.json())
+            .then(response => {
+                const keywords = processKeywords(response.keywords);
+                movie_keywords[movieId] = keywords;
+                localStorage.setItem('movie_keywords', JSON.stringify(movie_keywords));
+                document.getElementById('main').innerHTML = keywordsView(movieId, keywords);
+            })
+            .catch(err => console.error(err));
+    }
 }
 
 const downloadContr = () => {
@@ -268,17 +323,31 @@ const downloadContr = () => {
     fetch('https://api.themoviedb.org/3/movie/popular', options)
         .then(response => response.json())
         .then(response => {
-            mis_peliculas = response.results.map(p => ({
-                titulo: p.title,
-                director: 'Unknown',
-                miniatura: `https://image.tmdb.org/t/p/w500${p.poster_path}`,
-                id: p.id
-            }));
+            const fetchPromises = response.results.map(p => {
+                return fetch(`https://api.themoviedb.org/3/movie/${p.id}?append_to_response=credits`, options)
+                    .then(res => res.json());
+            });
+
+            return Promise.all(fetchPromises);
+        })
+        .then(moviesWithDetails => {
+            mis_peliculas = moviesWithDetails.map(movie => {
+                const director = movie.credits.crew.find(person => person.job === 'Director');
+                return {
+                    id: movie.id,
+                    titulo: movie.title,
+                    director: director ? director.name : 'Desconocido',
+                    miniatura: `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                };
+            });
             localStorage.setItem('mis_peliculas', JSON.stringify(mis_peliculas));
             indexContr();
         })
-        .catch(err => console.error(err));
-}
+        .catch(err => {
+            console.error(err);
+            alert("Error al descargar las películas. Comprueba la consola para más detalles.");
+        });
+};
 
 const cleanKeyword = (keyword) => {
   return keyword
@@ -288,15 +357,17 @@ const cleanKeyword = (keyword) => {
 };
 
 const processKeywords = (keywords) => {
-    return keywords.map(keyword => ({
-        ...keyword,
-        name: cleanKeyword(keyword.name)
-    }));
+    return keywords.map(keyword => {
+        keyword.name = cleanKeyword(keyword.name);
+        return keyword;
+    });
 };
 
 const addKeywordToList = (keyword) => {
-    mis_keywords.push(keyword);
-    localStorage.setItem('my_keywords', JSON.stringify(mis_keywords));
+    if (!mis_keywords.includes(keyword)) {
+        mis_keywords.push(keyword);
+        localStorage.setItem('my_keywords', JSON.stringify(mis_keywords));
+    }
     myKeywordsContr();
 }
 
@@ -307,8 +378,7 @@ const removeKeywordFromList = (keyword) => {
 }
 
 const myKeywordsContr = () => {
-    mis_keywords = JSON.parse(localStorage.getItem('my_keywords')) || [];
-    document.getElementById('main').innerHTML = myKeywordsView(mis_keywords);
+    document.getElementById('main').innerHTML = myKeywordsView();
 }
 
 const searchContr = () => {
@@ -346,7 +416,6 @@ const addFromAPIContr = (movieId) => {
         }
     };
 
-    // Check for duplicates before fetching
     if (mis_peliculas.some(p => p.id == movieId)) {
         alert('Esta película ya está en tu lista.');
         return;
