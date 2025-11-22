@@ -1,0 +1,116 @@
+
+.view {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.view.hidden {
+    opacity: 0;
+    display: none;
+}
+
+.movie {
+    background-color: $container-bg;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s ease-in-out;
+    position: relative;
+
+    &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .movie-img {
+        width: 100%;
+        height: 300px;
+        cursor: pointer;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .title {
+        text-align: center;
+        padding: 10px;
+        font-weight: bold;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+.actions {
+    padding: 15px;
+    text-align: center;
+}
+
+button, a.button {
+    background-color: $primary;
+    color: $text-light;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    display: inline-block;
+
+    &:hover {
+        background-color: darken($primary, 5%);
+    }
+}
+
+.field {
+    margin-bottom: 20px;
+
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #555;
+        background-color: #333;
+        color: $text-light;
+        box-sizing: border-box;
+    }
+}
+
+h2 {
+    text-align: center;
+    color: $text-light;
+    margin-bottom: 20px;
+}
+
+.keywords-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.keyword {
+    background-color: $container-bg;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    button {
+        background-color: #444;
+        font-size: 12px;
+        padding: 5px 10px;
+
+        &:hover {
+            background-color: #555;
+        }
+    }
+}

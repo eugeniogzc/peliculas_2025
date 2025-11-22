@@ -1,17 +1,30 @@
+
 <!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
     <title>Mis Películas</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Mis Películas Favoritas</h1>
-    <div id="main">
-      Cargando...
+    <div class="swiper-container">
+        <div class="swiper-wrapper">
+            <section class="swiper-slide view" id="main"></section>
+            <section class="swiper-slide view" id="search-view"></section>
+            <section class="swiper-slide view" id="detail-view"></section>
+            <section class="swiper-slide view" id="favorites-view"></section>
+            <section class="swiper-slide view" id="edit-view"></section>
+            <section class="swiper-slide view" id="keywords-view"></section>
+        </div>
     </div>
+
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="config.js"></script>
+    <script src="app/Favorites.js"></script>
     <script src="script.js"></script>
+    <script src="app/Navigation.js"></script>
 </body>
 </html>
