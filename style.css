@@ -22,7 +22,7 @@ h1 {
     margin-bottom: 30px;
 }
 
-#main, #search-view, #detail-view, #favorites-view, #edit-view, #keywords-view {
+#main-view, #search-view, #detail-view, #favorites-view, #edit-view, #keywords-view, #my-keywords-view {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
@@ -49,6 +49,7 @@ h1 {
     overflow: hidden;
     transition: transform 0.2s ease-in-out;
     position: relative;
+    width: 100%; /* Ensure movie takes up grid cell width */
 }
 
 .movie:hover {
@@ -84,7 +85,7 @@ h1 {
     text-align: center;
 }
 
-button, a.button {
+button, .button {
     background-color: var(--primary);
     color: var(--text-light);
     border: none;
@@ -99,7 +100,7 @@ button, a.button {
     display: inline-block;
 }
 
-button:hover, a.button:hover {
+button:hover, .button:hover {
     background-color: #d40813;
 }
 
@@ -150,6 +151,15 @@ h2 {
     background-color: #555;
 }
 
+.swiper-container {
+    width: 100%;
+}
+
+.swiper-slide {
+    width: 220px; /* Adjust as needed */
+}
+
+
 @media (max-width: 768px) {
     h1 {
         font-size: 2.5em;
@@ -174,7 +184,7 @@ h2 {
     }
 
     .movie-grid, .results-grid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        grid-template-columns: 1fr 1fr; /* Two columns on small screens */
         gap: 10px;
     }
 

@@ -9,22 +9,19 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="swiper-container">
-        <div class="swiper-wrapper">
-            <section class="swiper-slide view" id="main"></section>
-            <section class="swiper-slide view" id="search-view"></section>
-            <section class="swiper-slide view" id="detail-view"></section>
-            <section class="swiper-slide view" id="favorites-view"></section>
-            <section class="swiper-slide view" id="edit-view"></section>
-            <section class="swiper-slide view" id="keywords-view"></section>
-        </div>
-    </div>
+    <main>
+        <section id="main-view" class="view"></section>
+        <section id="search-view" class="view" style="display: none;"></section>
+        <section id="detail-view" class="view" style="display: none;"></section>
+        <section id="favorites-view" class="view" style="display: none;"></section>
+        <section id="edit-view" class="view" style="display: none;"></section>
+        <section id="keywords-view" class="view" style="display: none;"></section>
+        <section id="my-keywords-view" class="view" style="display: none;"></section>
+    </main>
 
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script src="config.js"></script>
-    <script src="app/Favorites.js"></script>
     <script src="script.js"></script>
-    <script src="app/Navigation.js"></script>
 </body>
 </html>
