@@ -22,15 +22,25 @@ h1 {
     margin-bottom: 30px;
 }
 
-#main {
+#main, #search-view, #detail-view, #favorites-view, #edit-view, #keywords-view {
     max-width: 1200px;
     margin: 0 auto;
+    padding: 20px;
 }
 
 .movie-grid, .results-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
+}
+
+.view {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.view.hidden {
+    opacity: 0;
+    display: none;
 }
 
 .movie {
@@ -46,19 +56,19 @@ h1 {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
-div.movie div.movie-img {
+.movie .movie-img {
     width: 100%;
     height: 300px;
     cursor: pointer;
 }
 
-div.movie div.movie-img img {
+.movie .movie-img img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-div.movie div.title {
+.movie .title {
     text-align: center;
     padding: 10px;
     font-weight: bold;
@@ -74,7 +84,7 @@ div.movie div.title {
     text-align: center;
 }
 
-button {
+button, a.button {
     background-color: var(--primary);
     color: var(--text-light);
     border: none;
@@ -85,10 +95,12 @@ button {
     font-weight: bold;
     text-transform: uppercase;
     transition: background-color 0.2s;
+    text-decoration: none;
+    display: inline-block;
 }
 
-button:hover {
-    background-color: #f61f2d;
+button:hover, a.button:hover {
+    background-color: #d40813;
 }
 
 .field {
@@ -111,7 +123,6 @@ h2 {
     margin-bottom: 20px;
 }
 
-/* Keyword styles */
 .keywords-list {
     display: flex;
     flex-wrap: wrap;
@@ -137,4 +148,46 @@ h2 {
 
 .keyword button:hover {
     background-color: #555;
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2.5em;
+    }
+
+    .movie-grid, .results-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    div.movie div.movie-img {
+        height: 220px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    .movie-grid, .results-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+    }
+
+    div.movie div.movie-img {
+        height: 180px;
+    }
+
+    .actions {
+        padding: 10px;
+    }
+
+    button, a.button {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
 }

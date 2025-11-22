@@ -1,3 +1,4 @@
+
 // MODELO DE DATOS
 let mis_peliculas_iniciales = [
    {titulo: "Superlópez",   director: "Javier Ruiz Caldera", "miniatura": "files/superlopez.png", id: 287947},
@@ -9,141 +10,143 @@ let mis_peliculas = [];
 let mis_keywords = [];
 let movie_keywords = {};
 
+const getFavorites = () => JSON.parse(localStorage.getItem('favorites')) || [];
+const saveFavorites = (favorites) => localStorage.setItem('favorites', JSON.stringify(favorites));
+const isFavorite = (movieId) => getFavorites().some(movie => movie.id === movieId);
+
+const toggleFavorite = (movie) => {
+    let favorites = getFavorites();
+    if (isFavorite(movie.id)) {
+        favorites = favorites.filter(fav => fav.id !== movie.id);
+    } else {
+        favorites.push(movie);
+    }
+    saveFavorites(favorites);
+};
+
+
 // VISTAS
 const indexView = (peliculas, recommended_movies) => {
     let i = 0;
     let view = "";
 
-    view += `<div class="actions">
-                <button class="new">Añadir</button>
-                <button class="reset">Reset</button>
-                <button class="my-keywords">Mis Keywords</button>
-                <button class="download">Descargar</button>
-                <button class="search-btn">Buscar</button>
-            </div>`;
+    view += `
+        <div class="actions">
+            <a href="#edit-view" class="new">Añadir</a>
+            <button class="reset">Reset</button>
+            <a href="#favorites-view" class="my-keywords">Mis Keywords</a>
+            <button class="download">Descargar</button>
+            <a href="#search-view" class="search-btn">Buscar</a>
+            <a href="#favorites-view" class="favorites">Favoritos</a>
+        </div>
+    `;
 
     // Sección de Recomendaciones
     view += `<h2>Basado en tus Keywords</h2>`;
     if (recommended_movies.length > 0) {
-        view += '<div class="movie-grid">';
+        view += '<div class="swiper-container"><div class="swiper-wrapper">';
         for (const movie of recommended_movies) {
             const movie_index = mis_peliculas.findIndex(p => p.id === movie.id);
             view += `
-            <div class="movie">
+            <div class="swiper-slide movie">
                <div class="movie-img">
-                    <img class="show" data-my-id="${movie_index}" src="${movie.miniatura}" onerror="this.src='files/placeholder.png'"/>
+                    <a href="#detail-view" class="show" data-my-id="${movie_index}"><img src="${movie.miniatura}" onerror="this.src='files/placeholder.png'"/></a>
                </div>
                <div class="title">
                    ${movie.titulo || "<em>Sin título</em>"}
                    <small>(${movie.match_count} coincidencias)</small>
                </div>
                <div class="actions">
-                   <button class="edit" data-my-id="${movie_index}">editar</button>
-                   <button class="delete" data-my-id="${movie_index}">borrar</button>
-                   <button class="keywords" data-my-id="${movie.id}">keywords</button>
+                    <button class="toggle-favorite" data-movie-id="${movie.id}">${isFavorite(movie.id) ? 'Quitar Fav' : 'Añadir Fav'}</button>
+                    <a href="#edit-view" class="edit" data-my-id="${movie_index}">editar</a>
+                    <button class="delete" data-my-id="${movie_index}">borrar</button>
+                    <a href="#keywords-view" class="keywords" data-my-id="${movie.id}">keywords</a>
                 </div>
             </div>\n`;
         }
-        view += '</div>';
+        view += '</div></div>';
     } else {
         view += `<p>Añade keywords a tu lista y visualiza las keywords de las películas para recibir recomendaciones.</p>`;
     }
 
     // Sección de Todas las Películas
     view += `<h2>Todas las Películas</h2>`;
-    view += '<div class="movie-grid">';
+    view += '<div class="swiper-container"><div class="swiper-wrapper">';
     while(i < peliculas.length) {
       view += `
-        <div class="movie">
+        <div class="swiper-slide movie">
            <div class="movie-img">
-                <img class="show" data-my-id="${i}" src="${peliculas[i].miniatura}" onerror="this.src='files/placeholder.png'"/>
+                <a href="#detail-view" class="show" data-my-id="${i}"><img src="${peliculas[i].miniatura}" onerror="this.src='files/placeholder.png'"/></a>
            </div>
            <div class="title">
                ${peliculas[i].titulo || "<em>Sin título</em>"}
            </div>
            <div class="actions">
-               <button class="edit" data-my-id="${i}">editar</button>
-               <button class="delete" data-my-id="${i}">borrar</button>
-               <button class="keywords" data-my-id="${peliculas[i].id}">keywords</button>
+                <button class="toggle-favorite" data-movie-id="${peliculas[i].id}">${isFavorite(peliculas[i].id) ? 'Quitar Fav' : 'Añadir Fav'}</button>
+                <a href="#edit-view" class="edit" data-my-id="${i}">editar</a>
+                <button class="delete" data-my-id="${i}">borrar</button>
+                <a href="#keywords-view" class="keywords" data-my-id="${peliculas[i].id}">keywords</a>
             </div>
         </div>\n`;
       i = i + 1;
     };
-    view += '</div>';
+    view += '</div></div>';
 
     return view;
 }
 
 const editView = (i, pelicula) => {
-    return `<h2>Editar Película </h2>
+    const isNew = i === undefined;
+    const movie_title = isNew ? '' : pelicula.titulo;
+    const movie_director = isNew ? '' : pelicula.director;
+    const movie_miniatura = isNew ? '' : pelicula.miniatura;
+    const button_label = isNew ? 'Crear' : 'Actualizar';
+    const action_class = isNew ? 'create' : 'update';
+    const data_id = isNew ? '' : `data-my-id="${i}"`;
+
+    return `<h2>${isNew ? 'Crear' : 'Editar'} Película</h2>
         <div class="field">
         Título <br>
-        <input  type="text" id="titulo" placeholder="Título" 
-                value="${pelicula.titulo}">
+        <input  type="text" id="titulo" placeholder="Título" value="${movie_title}">
         </div>
         <div class="field">
         Director <br>
-        <input  type="text" id="director" placeholder="Director" 
-                value="${pelicula.director}">
+        <input  type="text" id="director" placeholder="Director" value="${movie_director}">
         </div>
         <div class="field">
         Miniatura <br>
-        <input  type="text" id="miniatura" placeholder="URL de la miniatura" 
-                value="${pelicula.miniatura}">
+        <input  type="text" id="miniatura" placeholder="URL de la miniatura" value="${movie_miniatura}">
         </div>
         <div class="actions">
-            <button class="update" data-my-id="${i}">
-                Actualizar
-            </button>
-            <button class="index">
-                Volver
-            </button>
-       `;
+            <button class="${action_class}" ${data_id}>${button_label}</button>
+            <a href="#main" class="index">Volver</a>
+        </div>`;
 }
 
 const showView = (pelicula) => {
     return `
-     <h2>${pelicula.titulo}</h2>
-     <p>
+     <h2 class="anime-fade-in">${pelicula.titulo}</h2>
+     <p class="anime-fade-in">
         <strong>Director:</strong> ${pelicula.director}
      </p>
-     <div class="actions">
-        <button class="index">Volver</button>
+     <div class="actions anime-fade-in">
+        <button class="toggle-favorite" data-movie-id="${pelicula.id}">${isFavorite(pelicula.id) ? 'Quitar Fav' : 'Añadir Fav'}</button>
+        <a href="#main" class="index">Volver</a>
      </div>`;
-}
-
-const newView = () => {
-    return `<h2>Crear Película</h2>
-        <div class="field">
-        Título <br>
-        <input  type="text" id="titulo" placeholder="Título">
-        </div>
-        <div class="field">
-        Director <br>
-        <input  type="text" id="director" placeholder="Director">
-        </div>
-        <div class="field">
-        Miniatura <br>
-        <input  type="text" id="miniatura" placeholder="URL de la miniatura">
-        </div>
-        <div class="actions">
-            <button class="create">Crear</button>
-            <button class="index">Volver</button>
-        </div>`;
 }
 
 const keywordsView = (movieId, keywords) => {
     let view = `<h2>Keywords</h2>`;
     view += `<div class="keywords-list">`;
     for (const keyword of keywords) {
-        view += `<div class="keyword">
+        view += `<div class="keyword anime-fade-in">
                     <span>${keyword.name}</span>
                     <button class="add-keyword" data-keyword="${keyword.name}">Agregar a mi lista</button>
                  </div>`;
     }
     view += `</div>`;
     view += `<div class="actions">
-                <button class="index">Volver</button>
+                <a href="#main" class="index">Volver</a>
              </div>`;
     return view;
 }
@@ -152,14 +155,14 @@ const myKeywordsView = () => {
     let view = `<h2>Mis Keywords</h2>`;
     view += `<div class="keywords-list">`;
     for (const keyword of mis_keywords) {
-        view += `<div class="keyword">
+        view += `<div class="keyword anime-fade-in">
                     <span>${keyword}</span>
                     <button class="remove-keyword" data-keyword="${keyword}">Eliminar</button>
                  </div>`;
     }
     view += `</div>`;
     view += `<div class="actions">
-                <button class="index">Volver</button>
+                <a href="#main" class="index">Volver</a>
              </div>`;
     return view;
 }
@@ -172,8 +175,10 @@ const searchView = () => {
         </div>
         <div class="actions">
             <button class="do-search">Buscar</button>
-            <button class="index">Volver</button>
-        </div>`;
+            <a href="#main" class="index">Volver</a>
+        </div>
+        <div id="results-container"></div>
+        `;
 }
 
 const resultsView = (results) => {
@@ -184,7 +189,7 @@ const resultsView = (results) => {
         view += '<div class="results-grid">';
         for (const result of results) {
             view += `
-            <div class="movie">
+            <div class="movie anime-fade-in">
                <div class="movie-img">
                     <img src="https://image.tmdb.org/t/p/w500${result.poster_path}" onerror="this.src='files/placeholder.png'"/>
                </div>
@@ -199,10 +204,50 @@ const resultsView = (results) => {
         }
         view += '</div>';
     }
+    return view;
+}
+
+const favoritesView = () => {
+    const favorites = getFavorites();
+    let view = `<h2>Mis Películas Favoritas</h2>`;
+
+    if (favorites.length === 0) {
+        view += `<p>Aún no has añadido ninguna película a tus favoritos.</p>`;
+    } else {
+        view += '<div class="swiper-container"><div class="swiper-wrapper">';
+        for (const movie of favorites) {
+            const movie_index = mis_peliculas.findIndex(p => p.id === movie.id);
+            view += `
+            <div class="swiper-slide movie">
+               <div class="movie-img">
+                    <a href="#detail-view" class="show" data-my-id="${movie_index}"><img src="${movie.miniatura}" onerror="this.src='files/placeholder.png'"/></a>
+               </div>
+               <div class="title">
+                   ${movie.titulo || "<em>Sin título</em>"}
+               </div>
+               <div class="actions">
+                    <button class="toggle-favorite" data-movie-id="${movie.id}">${isFavorite(movie.id) ? 'Quitar Fav' : 'Añadir Fav'}</button>
+                    <a href="#edit-view" class="edit" data-my-id="${movie_index}">editar</a>
+                    <button class="delete" data-my-id="${movie_index}">borrar</button>
+                    <a href="#keywords-view" class="keywords" data-my-id="${movie.id}">keywords</a>
+                </div>
+            </div>\n`;
+        }
+        view += '</div></div>';
+    }
     view += `<div class="actions">
-                <button class="index">Volver</button>
+                <a href="#main" class="index">Volver</a>
              </div>`;
     return view;
+}
+
+const animateElements = (selector) => {
+    anime({
+        targets: selector,
+        opacity: [0, 1],
+        translateY: [20, 0],
+        delay: anime.stagger(100) // delay between each element
+    });
 }
 
 
@@ -217,8 +262,47 @@ const initContr = () => {
     if (!localStorage.getItem('movie_keywords')) {
         localStorage.setItem('movie_keywords', JSON.stringify({}));
     }
-    indexContr();
+    if (!localStorage.getItem('favorites')) {
+        localStorage.setItem('favorites', JSON.stringify([]));
+    }
+    
+    window.addEventListener("hashchange", () => {
+        const view = window.location.hash.substring(1) || 'main';
+        const [viewName, viewParam] = view.split('/');
+        
+        switch (viewName) {
+            case 'main':
+                indexContr();
+                break;
+            case 'detail-view':
+                showContr(viewParam);
+                break;
+            case 'edit-view':
+                editContr(viewParam);
+                break;
+            case 'keywords-view':
+                keywordsContr(viewParam);
+                break;
+            case 'favorites-view':
+                favoritesContr();
+                break;
+            case 'search-view':
+                searchContr();
+                break;
+        }
+    });
+
+    indexContr(); // Load default view
 };
+
+const initSwiper = () => {
+    new Swiper('.swiper-container', {
+        slidesPerView: 'auto',
+        spaceBetween: 20,
+        pagination: { el: '.swiper-pagination', clickable: true },
+        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+    });
+}
 
 const indexContr = () => {
     mis_peliculas = JSON.parse(localStorage.getItem('mis_peliculas')) || [];
@@ -236,14 +320,17 @@ const indexContr = () => {
     .sort((a, b) => b.match_count - a.match_count);
 
     document.getElementById('main').innerHTML = indexView(mis_peliculas, recommended_movies);
+    initSwiper();
+    animateElements('#main .movie');
 };
 
 const showContr = (i) => {
-    document.getElementById('main').innerHTML = showView(mis_peliculas[i]);
+    document.getElementById('detail-view').innerHTML = showView(mis_peliculas[i]);
+    animateElements('#detail-view > *');
 }
 
 const newContr = () => {
-    document.getElementById('main').innerHTML = newView();
+    document.getElementById('edit-view').innerHTML = editView();
 }
 
 const createContr = () => {
@@ -255,10 +342,11 @@ const createContr = () => {
     mis_peliculas.push(nueva_pelicula);
     localStorage.setItem('mis_peliculas', JSON.stringify(mis_peliculas));
     indexContr();
+    window.location.hash = '#main';
 };
 
 const editContr = (i) => {
-    document.getElementById('main').innerHTML = editView(i,  mis_peliculas[i]);
+    document.getElementById('edit-view').innerHTML = editView(i,  mis_peliculas[i]);
 }
 
 const updateContr = (i) => {
@@ -267,6 +355,7 @@ const updateContr = (i) => {
     mis_peliculas[i].miniatura = document.getElementById('miniatura').value;
     localStorage.setItem('mis_peliculas', JSON.stringify(mis_peliculas));
     indexContr();
+    window.location.hash = '#main';
 };
 
 const deleteContr = (i) => {
@@ -281,6 +370,7 @@ const resetContr = () => {
     if (confirm("¿Seguro que quieres reiniciar las películas?")) {
         localStorage.setItem('mis_peliculas', JSON.stringify(mis_peliculas_iniciales));
         localStorage.setItem('movie_keywords', JSON.stringify({}));
+        localStorage.setItem('favorites', JSON.stringify([]));
         indexContr();
     }
 };
@@ -289,7 +379,8 @@ const keywordsContr = (movieId) => {
     movie_keywords = JSON.parse(localStorage.getItem('movie_keywords')) || {};
 
     if (movie_keywords[movieId]) {
-        document.getElementById('main').innerHTML = keywordsView(movieId, movie_keywords[movieId]);
+        document.getElementById('keywords-view').innerHTML = keywordsView(movieId, movie_keywords[movieId]);
+        animateElements('#keywords-view .keyword');
     } else {
         fetch(`https://api.themoviedb.org/3/movie/${movieId}/keywords?api_key=${API_KEY}`)
             .then(response => response.json())
@@ -297,7 +388,8 @@ const keywordsContr = (movieId) => {
                 const keywords = processKeywords(response.keywords);
                 movie_keywords[movieId] = keywords;
                 localStorage.setItem('movie_keywords', JSON.stringify(movie_keywords));
-                document.getElementById('main').innerHTML = keywordsView(movieId, keywords);
+                document.getElementById('keywords-view').innerHTML = keywordsView(movieId, keywords);
+                animateElements('#keywords-view .keyword');
             })
             .catch(err => console.error(err));
     }
@@ -362,25 +454,31 @@ const removeKeywordFromList = (keyword) => {
 }
 
 const myKeywordsContr = () => {
-    document.getElementById('main').innerHTML = myKeywordsView();
+    document.getElementById('favorites-view').innerHTML = myKeywordsView();
+    animateElements('#favorites-view .keyword');
 }
 
 const searchContr = () => {
-    const query = document.getElementById('query').value.trim();
-    if (!query) {
-        alert("Por favor, introduce un término de búsqueda.");
-        return;
-    }
+    document.getElementById('search-view').innerHTML = searchView();
+    const searchButton = document.querySelector('#search-view .do-search');
+    searchButton.addEventListener('click', () => {
+        const query = document.getElementById('query').value.trim();
+        if (!query) {
+            alert("Por favor, introduce un término de búsqueda.");
+            return;
+        }
 
-    fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&api_key=${API_KEY}`)
-        .then(response => response.json())
-        .then(response => {
-            document.getElementById('main').innerHTML = resultsView(response.results);
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error al realizar la búsqueda. Comprueba la consola para más detalles.");
-        });
+        fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&api_key=${API_KEY}`)
+            .then(response => response.json())
+            .then(response => {
+                document.getElementById('results-container').innerHTML = resultsView(response.results);
+                animateElements('#results-container .movie');
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error al realizar la búsqueda. Comprueba la consola para más detalles.");
+            });
+    });
 }
 
 const addFromAPIContr = (movieId) => {
@@ -404,7 +502,8 @@ const addFromAPIContr = (movieId) => {
             mis_peliculas.push(pelicula);
             localStorage.setItem('mis_peliculas', JSON.stringify(mis_peliculas));
             alert('Película añadida con éxito.');
-            indexContr(); 
+            indexContr();
+            window.location.hash = '#main';
         })
         .catch(err => {
             console.error(err);
@@ -412,30 +511,48 @@ const addFromAPIContr = (movieId) => {
         });
 };
 
+const favoritesContr = () => {
+    document.getElementById('favorites-view').innerHTML = favoritesView();
+    initSwiper();
+    animateElements('#favorites-view .movie');
+}
+
 
 // ROUTER de eventos
 const matchEvent = (ev, sel) => ev.target.matches(sel)
 const myId = (ev) => Number(ev.target.dataset.myId)
 
 document.addEventListener('click', ev => {
-    if      (matchEvent(ev, '.index'))  indexContr  ();
-    else if (matchEvent(ev, '.edit'))   editContr   (myId(ev));
-    else if (matchEvent(ev, '.update')) updateContr (myId(ev));
-    else if (matchEvent(ev, '.show'))   showContr   (myId(ev));
-    else if (matchEvent(ev, '.new'))    newContr    ();
+    if      (matchEvent(ev, '.update')) updateContr (myId(ev));
     else if (matchEvent(ev, '.create')) createContr ();
     else if (matchEvent(ev, '.delete')) deleteContr (myId(ev));
     else if (matchEvent(ev, '.reset'))  resetContr  ();
-    else if (matchEvent(ev, '.keywords')) keywordsContr(ev.target.dataset.myId);
     else if (matchEvent(ev, '.add-keyword')) addKeywordToList(ev.target.dataset.keyword);
     else if (matchEvent(ev, '.remove-keyword')) removeKeywordFromList(ev.target.dataset.keyword);
-    else if (matchEvent(ev, '.my-keywords')) myKeywordsContr();
     else if (matchEvent(ev, '.download')) downloadContr();
-    else if (matchEvent(ev, '.search-btn')) document.getElementById('main').innerHTML = searchView();
-    else if (matchEvent(ev, '.do-search')) searchContr();
     else if (matchEvent(ev, '.add-from-api')) addFromAPIContr(ev.target.dataset.movieId);
+    else if (matchEvent(ev, '.toggle-favorite')) {
+        const movieId = Number(ev.target.dataset.movieId);
+        const movie = mis_peliculas.find(p => p.id === movieId);
+        if (movie) {
+            toggleFavorite(movie);
+            // Re-render current view to update favorite button
+            const currentView = window.location.hash.substring(1) || 'main';
+            if (currentView === 'main') {
+                indexContr();
+            } else if (currentView === 'favorites-view') {
+                favoritesContr();
+            } else if (currentView.startsWith('detail-view')) {
+                const movieIndex = mis_peliculas.findIndex(p => p.id === movieId);
+                showContr(movieIndex);
+            }
+        }
+    }
 })
 
 
 // Inicialización        
-document.addEventListener('DOMContentLoaded', initContr);
+document.addEventListener('DOMContentLoaded', () => {
+    initContr();
+    searchContr(); // Initialize search view
+});

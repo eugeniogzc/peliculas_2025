@@ -1,0 +1,42 @@
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2.5em;
+    }
+
+    .movie-grid, .results-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    div.movie div.movie-img {
+        height: 220px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    .movie-grid, .results-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+    }
+
+    div.movie div.movie-img {
+        height: 180px;
+    }
+
+    .actions {
+        padding: 10px;
+    }
+
+    button, a.button {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+}
