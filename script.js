@@ -291,15 +291,7 @@ const keywordsContr = (movieId) => {
     if (movie_keywords[movieId]) {
         document.getElementById('main').innerHTML = keywordsView(movieId, movie_keywords[movieId]);
     } else {
-        const options = {
-            method: 'GET',
-            headers: {
-                accept: 'application/json',
-                Authorization: `Bearer ${API_KEY}`
-            }
-        };
-
-        fetch(`https://api.themoviedb.org/3/movie/${movieId}/keywords`, options)
+        fetch(`https://api.themoviedb.org/3/movie/${movieId}/keywords?api_key=${API_KEY}`)
             .then(response => response.json())
             .then(response => {
                 const keywords = processKeywords(response.keywords);
@@ -312,19 +304,11 @@ const keywordsContr = (movieId) => {
 }
 
 const downloadContr = () => {
-    const options = {
-        method: 'GET',
-        headers: {
-            accept: 'application/json',
-            Authorization: `Bearer ${API_KEY}`
-        }
-    };
-
-    fetch('https://api.themoviedb.org/3/movie/popular', options)
+    fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}`)
         .then(response => response.json())
         .then(response => {
             const fetchPromises = response.results.map(p => {
-                return fetch(`https://api.themoviedb.org/3/movie/${p.id}?append_to_response=credits`, options)
+                return fetch(`https://api.themoviedb.org/3/movie/${p.id}?append_to_response=credits&api_key=${API_KEY}`)
                     .then(res => res.json());
             });
 
@@ -388,15 +372,7 @@ const searchContr = () => {
         return;
     }
 
-    const options = {
-        method: 'GET',
-        headers: {
-            accept: 'application/json',
-            Authorization: `Bearer ${API_KEY}`
-        }
-    };
-
-    fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}`, options)
+    fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&api_key=${API_KEY}`)
         .then(response => response.json())
         .then(response => {
             document.getElementById('main').innerHTML = resultsView(response.results);
@@ -408,20 +384,12 @@ const searchContr = () => {
 }
 
 const addFromAPIContr = (movieId) => {
-    const options = {
-        method: 'GET',
-        headers: {
-            accept: 'application/json',
-            Authorization: `Bearer ${API_KEY}`
-        }
-    };
-
     if (mis_peliculas.some(p => p.id == movieId)) {
         alert('Esta película ya está en tu lista.');
         return;
     }
 
-    fetch(`https://api.themoviedb.org/3/movie/${movieId}?append_to_response=credits`, options)
+    fetch(`https://api.themoviedb.org/3/movie/${movieId}?append_to_response=credits&api_key=${API_KEY}`)
         .then(response => response.json())
         .then(response => {
             const director = response.credits.crew.find(person => person.job === 'Director');
