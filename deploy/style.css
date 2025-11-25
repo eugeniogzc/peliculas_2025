@@ -1,0 +1,168 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
+body {
+  background-color: #141414;
+  color: #FFFFFF;
+  font-family: "Roboto", sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3 {
+  color: #FFFFFF;
+  text-align: center;
+  font-weight: 700;
+  margin: 40px 0 20px;
+}
+
+.swiper-container {
+  width: 100%;
+  height: 100vh;
+}
+
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: #141414;
+  overflow-y: auto;
+}
+
+.view {
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+  box-sizing: border-box;
+  opacity: 0;
+  display: none;
+}
+
+.movie-grid, .results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 25px;
+  padding: 20px 0;
+}
+
+.movie {
+  background-color: #222;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+.movie:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+.movie .movie-img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+}
+.movie .title {
+  padding: 15px;
+  font-size: 1em;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.movie .actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.button, .btn {
+  background-color: #E50914;
+  color: #FFFFFF;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 700;
+  text-align: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.button:hover, .btn:hover {
+  background-color: rgb(179.9285714286, 7.0714285714, 15.7142857143);
+  transform: translateY(-2px);
+}
+
+.field input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #AAAAAA;
+  background-color: #222;
+  color: #FFFFFF;
+  margin-top: 5px;
+}
+
+.actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.detail-container {
+  display: flex;
+  gap: 30px;
+  margin-top: 40px;
+  align-items: flex-start;
+}
+.detail-container .detail-poster img {
+  width: 300px;
+  border-radius: 10px;
+}
+.detail-container .detail-info {
+  flex: 1;
+}
+.detail-container .detail-info h2 {
+  text-align: left;
+  margin-top: 0;
+}
+
+@media (max-width: 768px) {
+  .movie-grid, .results-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+  }
+  h1 {
+    font-size: 2em;
+  }
+}
+@media (max-width: 480px) {
+  .movie-grid, .results-grid {
+    grid-template-columns: 1fr;
+  }
+  .movie-img {
+    height: 250px;
+  }
+}
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.movie-img:hover {
+  animation: pulse 1s infinite;
+}
+
+/*# sourceMappingURL=style.css.map */

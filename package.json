@@ -8,5 +8,13 @@
         "serverUrl": "https://autocorector.dit.upm.es/",
         "courseId": "1",
         "assignmentId": "4"
+    },
+    "scripts": {
+        "start": "node server.js",
+        "build": "sass scss/style.scss style.css"
+    },
+    "devDependencies": {
+        "sass": "^1.49.9",
+        "http-server": "^14.1.0"
     }
 }

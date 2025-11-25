@@ -1,6 +1,10 @@
 
-$primary: #E50914; // Netflix Red
-$background: #141414; // Netflix Black
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+$primary-color: #E50914; 
+$background-dark: #141414;
+$background-light: #222;
 $text-light: #FFFFFF;
 $text-dark: #AAAAAA;
-$container-bg: #222222;
+
+$font-family: 'Roboto', sans-serif;
